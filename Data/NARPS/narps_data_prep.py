@@ -33,7 +33,16 @@ for f in files:
     else:
         alldata = pd.concat([alldata, data], axis=0)
 
+alldata['accept'] = [1 if x.find('accept') > -1 else 0 for x in alldata['participant_response']]
+respdict = {
+    'strongly_accept': 4,
+    'weakly_accept': 3,
+    'weakly_reject': 2,
+    'strongly_reject': 1,
+    'NoResp': None
+}
+alldata['response_int'] = [respdict[x] for x in alldata['participant_response']]
 del alldata['onset']
 del alldata['duration']
-alldata = alldata[['sub', 'run',  'gain', 'loss', 'RT', 'participant_response']]
+alldata = alldata[['sub', 'run',  'gain', 'loss', 'RT', 'accept',  'response_int', 'participant_response']]
 alldata.to_csv('narps_behav_data.csv', index=False)
