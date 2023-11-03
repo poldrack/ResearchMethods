@@ -18,6 +18,11 @@ def parse_bids_filename(fname):
 
 basedir = '/data/narps_behav'
 
+participants = pd.read_csv(os.path.join(basedir, 'participants.tsv'), sep='\t')
+participants['sub'] = participants['participant_id'].str.replace('sub-', '')
+condition_dict = {i:j for i, j in zip(participants['sub'], participants['group'])}
+
+
 files = glob(os.path.join(basedir, 'sub-*/func/*_events.tsv'))
 files.sort()
 
@@ -44,5 +49,6 @@ respdict = {
 alldata['response_int'] = [respdict[x] for x in alldata['participant_response']]
 del alldata['onset']
 del alldata['duration']
-alldata = alldata[['sub', 'run',  'gain', 'loss', 'RT', 'accept',  'response_int', 'participant_response']]
+alldata['condition'] = [condition_dict[x] for x in alldata['sub']]
+alldata = alldata[['sub', 'run', 'condition', 'gain', 'loss', 'RT', 'accept',  'response_int', 'participant_response']]
 alldata.to_csv('narps_behav_data.csv', index=False)
