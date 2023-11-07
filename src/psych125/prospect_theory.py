@@ -4,6 +4,8 @@
 import numpy as np
 from scipy.optimize import minimize
 from icecream import ic
+import pandas as pd
+
 
 # Step 2: Calculate subjective utility given lambda/rho (Equation (1) above)
 # takes a vector of values and parameters and returns subjective utilities
@@ -70,6 +72,23 @@ def fit_pt_model(df, pars0=None, bounds=None, method='L-BFGS-B'):
     else:
         ic(output)
         raise RuntimeError(output.message)
+
+
+def get_predicted_output(sub_pars, subdata):
+    pred_output = []
+    for sub, pars in sub_pars.items():
+        cert_su = [calc_subjective_utility(i, pars[0], pars[1]) for i in subdata[sub].cert]
+        loss_su = [calc_subjective_utility(-1 * i, pars[0], pars[1]) for i in subdata[sub].loss]
+        gain_su = [calc_subjective_utility(i, pars[0], pars[1]) for i in subdata[sub].gain]
+        gamble_cert_diff = calc_utility_diff(gain_su, loss_su, cert_su)
+        prob_accept = calc_prob_accept(gamble_cert_diff, mu = pars[2])
+        n_pred_accepted = np.sum(prob_accept > 0.5)
+        n_accepted = np.sum(subdata[sub].response)
+        pred_acc = np.mean((prob_accept > 0.5) == subdata[sub].response)
+        pred_output.append([n_pred_accepted, n_accepted, pred_acc, sub, pars[0], pars[1], pars[2]])
+
+    return pd.DataFrame(pred_output, columns=['pred_accept', 'accept', 'predacc', 'sub', 'lambda', 'rho', 'mu']) 
+
 
 if __name__ == '__main__':
     import pandas as pd
