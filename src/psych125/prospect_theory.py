@@ -11,7 +11,7 @@ def calc_subjective_utility(vals, lam, rho):
     if vals >= 0:
         return vals ** rho
     else:
-        return (-1 * lam) * ((-vals) ** rho)
+        return (-1 * lam) * ((-vals ** rho))
 
 
 # Step 3: Calculate utility difference from vectors of gains,
