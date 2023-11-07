@@ -3,15 +3,16 @@
 
 import numpy as np
 from scipy.optimize import minimize
-
+from icecream import ic
 
 # Step 2: Calculate subjective utility given lambda/rho (Equation (1) above)
 # takes a vector of values and parameters and returns subjective utilities
 def calc_subjective_utility(vals, lam, rho):
     if vals >= 0:
-        return vals ** rho
+        retval = vals ** rho
     else:
-        return (-1 * lam) * ((-vals ** rho))
+        retval = (-1 * lam) * (((-1 * vals) ** rho))
+    return retval
 
 
 # Step 3: Calculate utility difference from vectors of gains,
@@ -33,7 +34,7 @@ def calc_prob_accept(gamble_cert_diff, mu):
 
 def LL_prospect(par):
     lambda_par, rho_par, mu_par = par
-  
+    assert not np.isnan(lambda_par)
     cert_su = [calc_subjective_utility(i, lambda_par, rho_par) for i in data.cert]
     loss_su = [calc_subjective_utility(-1 * i, lambda_par, rho_par) for i in data.loss]
     gain_su = [calc_subjective_utility(i, lambda_par, rho_par) for i in data.gain]
@@ -43,25 +44,42 @@ def LL_prospect(par):
     # calculate log likelihood on this slightly altered amount
     log_likelihood_trial = data.response.values * np.log(prob_accept) + \
         (1-data.response.values) * np.log(1-prob_accept)
-
-    return -1 * np.sum(log_likelihood_trial)
+    LL = -1 * np.sum(log_likelihood_trial)
+    if np.isnan(LL):
+        raise RuntimeError('LL is nan')
+    return LL 
 
 
 
 def fit_pt_model(df, pars0=None, bounds=None, method='L-BFGS-B'):
     if bounds is None:
-        bounds = ((0, None), (0, None), (0, None))
+        bounds = ((0, None), (0, None))
     # need to make data global so that it can be accessed by LL_prospect
     global data
     data = df
+    print(data['response'].mean())
     if 'cert' not in data.columns:
         data['cert'] = 0
     if pars0 is None:
-        # defaults based on Sokol-Hessner paper
-        pars0 = [1, 1, 1]
+        # defaults based loosely on prior papers
+        pars0 = [1.5, 0.9, 1]
     output = minimize(LL_prospect, pars0, method=method, tol=1e-8,
-                bounds=bounds)
+                bounds=bounds, options={'maxiter': 1000})
     if output.success:
         return output.x, output.fun
     else:
+        ic(output)
         raise RuntimeError(output.message)
+
+if __name__ == '__main__':
+    import pandas as pd
+
+    alldata = pd.read_csv('https://raw.githubusercontent.com/poldrack/ResearchMethods/main/Data/NARPS/narps_behav_data.csv')
+    alldata = alldata.query('condition == "equalIndifference"')
+    alldata['cert'] = 0
+    alldata = alldata.rename({'RT': 'rt', 'accept': 'response'}, axis=1)
+    subjects = alldata['sub'].unique()
+    subdata = alldata.query('sub == @subjects[0]')
+
+    pars_est, ll = fit_pt_model(subdata,
+                            bounds=((0, None), (0.1, 2), (1, 1)))
