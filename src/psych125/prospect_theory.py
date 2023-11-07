@@ -48,7 +48,7 @@ def LL_prospect(par):
 
 
 
-def fit_pt_model(df, pars0=None, bounds=None):
+def fit_pt_model(df, pars0=None, bounds=None, method='L-BFGS-B'):
     if bounds is None:
         bounds = ((0, None), (0, None), (0, None))
     # need to make data global so that it can be accessed by LL_prospect
@@ -58,8 +58,8 @@ def fit_pt_model(df, pars0=None, bounds=None):
         data['cert'] = 0
     if pars0 is None:
         # defaults based on Sokol-Hessner paper
-        pars0 = [1.4, .83, 2.57]
-    output = minimize(LL_prospect, pars0, method='L-BFGS-B', tol=1e-8,
+        pars0 = [1, 1, 1]
+    output = minimize(LL_prospect, pars0, method=method, tol=1e-8,
                 bounds=bounds)
     if output.success:
         return output.x, output.fun
