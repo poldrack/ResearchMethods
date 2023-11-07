@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "psych125"
+version = "0.0.1"
+description = "utilities for Psych 125: Research Methods"
+authors = ["Russ Poldrack <poldrack@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "^1.2"
+scipy = "^1.10"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
