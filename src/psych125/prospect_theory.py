@@ -3,7 +3,6 @@
 
 import numpy as np
 from scipy.optimize import minimize
-from icecream import ic
 import pandas as pd
 
 
@@ -70,7 +69,7 @@ def fit_pt_model(df, pars0=None, bounds=None, method='L-BFGS-B'):
     if output.success:
         return output.x, output.fun
     else:
-        ic(output)
+        print(output)
         raise RuntimeError(output.message)
 
 
