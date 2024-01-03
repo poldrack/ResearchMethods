@@ -1,8 +1,8 @@
-load_install_package = function(package, apt=TRUE) {
+load_install_package = function(package, apt=TRUE, update=TRUE) {
   if (!require(package, character.only=T, quietly=T)) {
     if (apt) {
         # some installs fail without first updating
-        system2(command='apt-get', args=c('update'))
+        if(update) system2(command='apt-get', args=c('update'))
         apt_install(package)
     } else {
         install.packages(package)
