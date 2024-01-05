@@ -26,15 +26,15 @@ check_values <- function(problem){
       }
     }
 
-    stopping_results_df_test = data.frame(stopping_results)
-    names(stopping_results_df_test) = c('step_size', 'error_rate')
+    stopping_results_df_test = data.frame(stopping_results_test)
+    names(stopping_results_df_test) = c('step_size', 'sigp')
     assert_that(all.equal(stopping_results_df, stopping_results_df_test))
 
 
   } else if (problem == 2){
     stopping_summary_df_test = stopping_results_df %>%
       group_by(step_size) %>%
-      summarize_all(mean)
+      summarize(error_rate=mean(sigp))
 
     p1_test = ggplot(stopping_summary_df_test, aes(x=step_size, y=error_rate)) +
       geom_line() +
@@ -45,7 +45,12 @@ check_values <- function(problem){
     assert_that(all.equal(p1_test$data, p1$data))
 
   } else if (problem == 3){
-    lm_summary_test = summary(lm(Height_shuf ~ PhysActive, data=NHANES_adult))
+    set.seed(12345)
+    NHANES_adult_shuffled_test = NHANES_adult %>%
+      mutate(Height_shuf = sample(Height))
+    assert_that(all.equal(NHANES_adult_shuffled, NHANES_adult_shuffled_test))
+
+    lm_summary_test = summary(lm(Height_shuf ~ PhysActive, data=NHANES_adult_shuffled))
     assert_that(all.equal(lm_summary_test$coefficients, lm_summary$coefficients))
   } else if (problem == 4){
     set.seed(123456)
