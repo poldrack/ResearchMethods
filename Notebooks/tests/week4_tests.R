@@ -35,6 +35,7 @@ check_values <- function(problem){
     stopping_summary_df_test = stopping_results_df %>%
       group_by(step_size) %>%
       summarize(error_rate=mean(sigp))
+    assert_that(all.equal(stopping_summary_df_test, stopping_summary_df))
 
     p1_test = ggplot(stopping_summary_df_test, aes(x=step_size, y=error_rate)) +
       geom_line() +
@@ -52,6 +53,7 @@ check_values <- function(problem){
 
     lm_summary_test = summary(lm(Height_shuf ~ PhysActive, data=NHANES_adult_shuffled))
     assert_that(all.equal(lm_summary_test$coefficients, lm_summary$coefficients))
+
   } else if (problem == 4){
     set.seed(123456)
     n_sims_test = 1000
@@ -68,9 +70,11 @@ check_values <- function(problem){
       sim_results_test = c(sim_results_test, lm_summary_test$coefficients[2, 4] <= pthresh)
     }
     assert_that(all.equal(sim_results, sim_results_test))
+
   } else if (problem == 5){
     type_1_error_test = mean(sim_results)
     assert_that(type_1_error == type_1_error_test)
+    
   } else if (problem==6){
     set.seed(123456)
     n_sims = 1000
