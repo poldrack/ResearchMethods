@@ -83,11 +83,12 @@ check_values <- function(problem){
     sim_results_test = c()
 
     for (i in 1:n_sims){
-      NHANES_sample = NHANES_adult_test %>%
-        sample_n(sample_size)
+      NHANES_sample_test = NHANES_adult_test %>%
+        sample_n(sample_size) %>%
+        mutate(Height_shuf = sample(Height))
       sigp = FALSE
       for (cv in covariates_to_try){
-        cov_samp = NHANES_sample[, c('Height_shuf', 'PhysActive',  cv)]
+        cov_samp = NHANES_sample_test[, c('Height_shuf', 'PhysActive',  cv)]
         # use interaction model (denoted by .^2)
         lm_summary = summary(lm(Height_shuf ~ .^2, data=cov_samp))
         if (lm_summary$coefficients[2, 4] <= pthresh) {
