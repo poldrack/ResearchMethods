@@ -1,0 +1,46 @@
+---
+title: "Yardstick Analysis"
+output: html_document
+date: "2024-01-09"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+
+## assumes files are in same directory
+
+heads <- read_csv("Yardstick exercise - heads.csv") |> mutate(condition="focus_first")
+tails <- read_csv("Yardstick exercise - tails.csv") |> mutate(condition="conversation_first") 
+
+all <- heads |> bind_rows(tails) |> 
+  select(-Timestamp) |> 
+  pivot_longer(`Focused Trial 1`:`Conversation Trial 5`) |> 
+  separate(name, c("type", NA, "trial_num")) |> 
+  rename(subject=`Name of subject`, tester=`Name of tester`, RT=value) %>%
+  mutate(condition = factor(condition), trial_num=as.numeric(trial_num))
+
+```
+
+
+Visualize the data
+
+```{r}
+
+summary_df <- all %>%
+  group_by(trial_num, condition) %>%
+  summarize(mean_rt = mean(RT))
+
+ggplot(summary_df, aes(x=trial_num, y=mean_rt, group=condition, color=condition)) + 
+  geom_line()
+```
+
+Estimate a mixed effects model
+
+```{r}
+
+lmer_result = lmer(RT ~ condition * trial_num + (1|subject), data=all)
+summary(lmer_result)
+```
+
