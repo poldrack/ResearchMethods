@@ -32,7 +32,7 @@ check_values <- function(problem){
   } else if (problem ==7){
     crt_df_test = retest_df %>%
       select(cognitive_reflection_survey.correct_proportion_test, cognitive_reflection_survey.correct_proportion_retest)
-      icc_crt_test = irr::icc(crt_df, model="twoway", type="consistency", unit="single")
+      icc_crt_test = irr::icc(crt_df, model="oneway", type="consistency", unit="single")
       assert_that(all.equal(crt_df_test, crt_df))
       assert_that(icc_crt_test$value == icc_crt$value)
   } else if (problem ==8){
