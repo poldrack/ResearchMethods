@@ -30,7 +30,7 @@ check_values <- function(problem, seed=123456){
     set.seed(seed)  # set the random seed for reproducibility
 
     effect_size=-0.5
-    df_test = generate_data(effect_size)
+    df_test = generate_data_test(effect_size)
     assert_that(all.equal(df, df_test))
   } else if (problem ==2) {
         attrition_test = function(df, attrition_rate=0.5, attrition_min=0.5){
@@ -53,7 +53,7 @@ check_values <- function(problem, seed=123456){
         effect_size=-0.5
         df_test = generate_data(effect_size)
         set.seed(seed)  # set the random seed for reproducibility
-        df_attrition_test = attrition(df_test)
+        df_attrition_test = attrition_test(df_test)
         assert_that(all.equal(df_attrition, df_attrition_test))
   } else if (problem ==3){
     # create a function to estimate the effect of attrition
