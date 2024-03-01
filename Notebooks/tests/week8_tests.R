@@ -85,7 +85,7 @@ check_values <- function(problem, seed=123456){
         df_test = generate_data(effect_size)
         set.seed(seed)  # set the random seed for reproducibility
         df_attrition_test = attrition(df_test)
-        result_df_test = estimate_effect_of_attrition(df_test, df_attrition_test)
+        result_df_test = estimate_effect_of_attrition_test(df_test, df_attrition_test)
         assert_that(all.equal(result_df_test, result_df))
 
 
